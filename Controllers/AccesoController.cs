@@ -17,6 +17,20 @@ namespace Banco.Controllers
            _dbContext = dbContext;
         }
 
+        public async Task CrearCuentaParaUsuario(Usuario nuevoUsuario)
+        {
+            // Crear una nueva cuenta para el usuario
+            var nuevaCuenta = new Cuenta
+            {
+                IdUsuario = nuevoUsuario.IdUsuario, // Asignar el ID del nuevo usuario a la cuenta
+                Saldo = 0 // Establecer el saldo inicial en 0
+            };
+
+            // Agregar la nueva cuenta a la base de datos
+            _dbContext.Cuentas.Add(nuevaCuenta);
+            await _dbContext.SaveChangesAsync();
+        }
+
         [HttpGet]
         public IActionResult Registro()
         {
@@ -26,6 +40,13 @@ namespace Banco.Controllers
         [HttpPost]
         public async Task<IActionResult> Registro(UsuarioVM modelo)
         {
+            // Verificar si el correo ya está registrado
+            if (await _dbContext.Usuarios.AnyAsync(u => u.Correo == modelo.Correo))
+            {
+                ViewData["Mensaje"] = "Ya existe ese correo. Ingrese otro e intente nuevamente";
+                return View();
+            }
+
             if (modelo.Clave != modelo.ConfirmarClave)
             {
                 ViewData["Mensaje"] = "Las claves no coinciden :(";
@@ -43,11 +64,25 @@ namespace Banco.Controllers
             _dbContext.Usuarios.Add(usuario);
             await _dbContext.SaveChangesAsync(); // Guardar los cambios en la base de datos
 
+            // Verificar si el usuario no tiene una cuenta asociada
+            if (!_dbContext.Cuentas.Any(c => c.IdUsuario == usuario.IdUsuario))
+            {
+                // Crear una cuenta para el nuevo usuario
+                await CrearCuentaParaUsuario(usuario);
+            }
+
+
             if (usuario.IdUsuario != 0)
             {
+                // Crear una cuenta para el nuevo usuario
+                await CrearCuentaParaUsuario(usuario);
+
                 return RedirectToAction("Login", "Acceso");
             }
-            else { ViewData["Mensaje"] = "No se pudo crear el usuario. Terrible"; }
+            else
+            {
+                ViewData["Mensaje"] = "No se pudo crear el usuario. Terrible";
+            }
 
             return View();
         }
@@ -61,20 +96,29 @@ namespace Banco.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM modelo)
         {
-            Usuario? usuario_encontrado = await _dbContext.Usuarios.Where(u =>
-                u.Correo == modelo.Correo && u.Clave == modelo.Clave
-            ).FirstOrDefaultAsync();
+                Usuario? usuario_encontrado = await _dbContext.Usuarios
+           .Include(u => u.Cuenta)
+           .Where(u => u.Correo == modelo.Correo && u.Clave == modelo.Clave)
+           .FirstOrDefaultAsync();
 
             if (usuario_encontrado == null)
             {
-                ViewData["Mensaje"] = "No se encontraron coincidencias.Asegúrese que lo ingresado sea correcto";
+                ViewData["Mensaje"] = "No se encontraron coincidencias. Asegúrese que lo ingresado sea correcto";
                 return View();
             }
 
-            List<Claim> claims = new List<Claim>()
+            // Verificar si el usuario no tiene una cuenta asociada
+            if (usuario_encontrado.Cuenta == null)
             {
-                new Claim(ClaimTypes.Name,usuario_encontrado.Nombre)
-            };
+                // Crear una cuenta para el usuario
+                await CrearCuentaParaUsuario(usuario_encontrado);
+            }
+
+            List<Claim> claims = new List<Claim>()
+                {
+                    new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.IdUsuario.ToString()), // Store IdUsuario in NameIdentifier claim
+                    new Claim(ClaimTypes.Name, usuario_encontrado.Nombre)
+                };
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             AuthenticationProperties properties = new AuthenticationProperties()
@@ -85,10 +129,9 @@ namespace Banco.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 properties);
-            
 
             return RedirectToAction("Index", "Home");
-
         }
+
     }
 }

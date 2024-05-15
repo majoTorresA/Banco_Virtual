@@ -6,6 +6,7 @@ using Banco.ViewModels;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -36,46 +37,85 @@ namespace Banco.Controllers
             return View();
         }
 
-
-       [HttpPost("Retiro")]
-    public async Task<IActionResult> Retiro(int idUsuario, decimal cantidad)
-    {
-        // Obtener el usuario
-        var usuario = await _dbContext.Usuarios.FindAsync(idUsuario);
-        if (usuario == null)
-            return NotFound("Usuario no encontrado");
-
-        // Verificar que haya suficiente saldo para el retiro
-        decimal saldo = usuario.Cuenta.Saldo;
-        if (cantidad > saldo)
-            return BadRequest("Saldo insuficiente");
-
-        // Obtener el tipo de movimiento "Retirar" de la base de datos
-        var tipoMovimientoRetirar = _dbContext.TiposMovimiento.FirstOrDefault(t => t.Nombre == "Retirar");
-        if (tipoMovimientoRetirar == null)
-            return NotFound("Tipo de movimiento 'Retirar' no encontrado");
-
-        // Crear el movimiento de retiro
-        var movimiento = new Movimientos
+        [HttpGet]
+        public IActionResult Retiro()
         {
-            IdUsuario = idUsuario,
-            TipoMovimiento = tipoMovimientoRetirar,
-            Cantidad = cantidad,
-            Fecha = DateTime.Now
-        };
+            return View();
+        }
 
-        // Actualizar el saldo de la cuenta
-        usuario.Cuenta.Saldo -= cantidad;
+        [HttpPost]
+        public async Task<IActionResult> Retiro(string clave, decimal cantidad)
+        {
+            // Obtener el id del usuario autenticado desde los claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                ViewData["MensajeFallo"] = "Error al obtener el ID del usuario";
+                return View();
+            }
 
-        // Guardar los cambios en la base de datos
-        _dbContext.Movimientos.Add(movimiento);
-        await _dbContext.SaveChangesAsync();
+            if (!int.TryParse(userIdClaim.Value, out int idUsuario))
+            {
+                ViewData["MensajeFallo"] = "Error al convertir el ID del usuario";
+                return View();
+            }
 
-        return Ok("Retiro realizado con éxito");
-    }
+            // Obtener el usuario y verificar la clave, incluyendo la propiedad Cuenta
+            var usuario = await _dbContext.Usuarios
+                                          .Include(u => u.Cuenta)
+                                          .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario && u.Clave == clave);
+            if (usuario == null)
+            {
+                ViewData["MensajeFallo"] = "Usuario o clave incorrectos";
+                return View();
+            }
+
+            // Verificar que el usuario tenga una cuenta asociada
+            if (usuario.Cuenta == null)
+            {
+                ViewData["MensajeFallo"] = "El usuario no tiene una cuenta asociada";
+                return View();
+            }
+
+            // Verificar que haya suficiente saldo para el retiro
+            decimal saldo = usuario.Cuenta.Saldo;
+            if (cantidad > saldo)
+            {
+                ViewData["MensajeFallo"] = "Saldo insuficiente";
+                return View();
+            }
+
+            // Obtener el tipo de movimiento "Retirar" de la base de datos
+            var tipoMovimientoRetirar = _dbContext.TiposMovimiento.FirstOrDefault(t => t.Nombre == "Retirar");
+            if (tipoMovimientoRetirar == null)
+            {
+                ViewData["MensajeFallo"] = "Tipo de movimiento 'Retirar' no encontrado";
+                return View();
+            }
+
+            // Crear el movimiento de retiro
+            var movimiento = new Movimientos
+            {
+                IdUsuario = idUsuario,
+                IdTipoMovimiento = tipoMovimientoRetirar.IdTipoMovimiento,
+                Cantidad = cantidad,
+                Fecha = DateTime.Now
+            };
+
+            // Actualizar el saldo de la cuenta
+            usuario.Cuenta.Saldo -= cantidad;
+
+            // Guardar los cambios en la base de datos de movimientos
+            _dbContext.Movimientos.Add(movimiento);
+            await _dbContext.SaveChangesAsync();
+
+            ViewData["MensajeExito"] = "Retiro realizado con éxito";
+            return View();
+        }
 
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
