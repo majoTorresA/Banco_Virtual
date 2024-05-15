@@ -1,0 +1,17 @@
+# Ignorar la carpeta "packages"
+packages/
+Migrations/
+obj/
+bin/
+
+# Ignorar archivos con extensión ".suo"
+*.suo
+
+# Ignorar el archivo ".user"
+*.user
+
+#IGNORA .json
+*.appsettings.Development.json
+*.appsettings.json
+
+
