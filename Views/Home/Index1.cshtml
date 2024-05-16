@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Banco.Models.Movimientos>
+
+@{
+    ViewData["Title"] = "Consultar Movimientos";
+}
+
+<h2>Consultar Movimientos</h2>
+
+@if (ViewData["MensajeFallo"] != null)
+{
+    <div class="alert alert-danger">
+        @ViewData["MensajeFallo"]
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo de Movimiento</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var movimiento in Model)
+            {
+                <tr>
+                    <td>@movimiento.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td>@movimiento.TipoMovimiento.Nombre</td>
+                    <td>@movimiento.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
