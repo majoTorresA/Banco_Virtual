@@ -60,8 +60,9 @@ namespace Banco.Data
                 new TipoMovimiento { IdTipoMovimiento = 1, Nombre = "Retirar" },
                 new TipoMovimiento { IdTipoMovimiento = 2, Nombre = "Consultar Saldo" },
                 new TipoMovimiento { IdTipoMovimiento = 3, Nombre = "Consignar" },
-                new TipoMovimiento { IdTipoMovimiento = 4, Nombre = "Consultar Movimientos" }
-                );
+                new TipoMovimiento { IdTipoMovimiento = 4, Nombre = "Consultar Movimientos" },
+                new TipoMovimiento { IdTipoMovimiento = 5, Nombre = "Depositar" }
+                ) ;
 
             });
 

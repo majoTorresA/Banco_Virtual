@@ -7,6 +7,8 @@
         public string Correo { get; set; }
         public string Clave { get; set; }
         public string Identificacion { get; set; }
+        public int IntentosFallidos { get; set; }
+        public DateTime? BloqueadoHasta { get; set; }
         public ICollection<Movimientos> Movimientos { get; set; }
         public Cuenta Cuenta { get; set; } // Esto representa la relación uno a uno con la cuenta
     }
