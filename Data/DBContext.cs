@@ -22,14 +22,28 @@ namespace Banco.Data
             modelBuilder.Entity<Usuario>(tb =>
             {
                 tb.HasKey(col => col.IdUsuario);
-                tb.Property(col => col.IdUsuario).UseIdentityColumn()
-                .ValueGeneratedOnAdd();
+                tb.Property(col => col.IdUsuario)
+                    .UseIdentityColumn()
+                    .ValueGeneratedOnAdd();
 
-                tb.Property(col => col.Nombre).HasMaxLength(50);
-                tb.Property(col => col.Correo).HasMaxLength(50);
-                tb.Property(col => col.Clave).HasMaxLength(50);
-                tb.Property(col => col.Identificacion).HasMaxLength(50);
+                tb.Property(col => col.Nombre)
+                    .HasMaxLength(50);
+                tb.Property(col => col.Correo)
+                    .HasMaxLength(50);
+
+                tb.Property(col => col.Clave)
+                    .HasMaxLength(50);
+                tb.Property(col => col.Identificacion)
+                    .HasMaxLength(50);
+
+                // Nueva propiedad IntentosFallidos
+                tb.Property(col => col.IntentosFallidos)
+                    .HasDefaultValue(0); // Valor predeterminado cero
+                // Nueva propiedad BloqueadoHasta
+                tb.Property(col => col.BloqueadoHasta)
+                    .IsRequired(false); // Hacer que esta propiedad sea nullable en la base de datos
             });
+
 
             modelBuilder.Entity<Movimientos>(tb =>
             {

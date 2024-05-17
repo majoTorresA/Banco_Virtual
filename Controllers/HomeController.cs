@@ -110,6 +110,7 @@ namespace Banco.Controllers
             await _dbContext.SaveChangesAsync();
 
             ViewData["MensajeExito"] = "Retiro realizado con éxito";
+            ViewData["Saldo"] = usuario.Cuenta.Saldo;
             return View();
         }
 
@@ -202,6 +203,7 @@ namespace Banco.Controllers
             await _dbContext.SaveChangesAsync();
 
             ViewData["MensajeExito"] = "Consignación realizada con éxito";
+            ViewData["Saldo"] = usuarioConsignador.Cuenta.Saldo;
             return View();
         }
 
@@ -313,6 +315,7 @@ namespace Banco.Controllers
             await _dbContext.SaveChangesAsync();
 
             ViewData["MensajeExito"] = "Deposito realizado con éxito";
+            ViewData["Saldo"] = usuario.Cuenta.Saldo;
             return View();
         }
 
@@ -320,28 +323,31 @@ namespace Banco.Controllers
         [HttpGet]
         public async Task<IActionResult> ConsultarMovimientos()
         {
-            // Obtener el id del usuario autenticado desde los claims
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int idUsuario))
             {
-                ViewData["MensajeFallo"] = "Error al obtener el ID del usuario";
+                ViewData["MensajeFallo"] = userIdClaim == null ? "Error al obtener el ID del usuario" : "Error al convertir el ID del usuario";
                 return View();
             }
 
-            if (!int.TryParse(userIdClaim.Value, out int idUsuario))
-            {
-                ViewData["MensajeFallo"] = "Error al convertir el ID del usuario";
-                return View();
-            }
-
-            // Obtener los movimientos del usuario que sean de tipo "Retirar", "Consignar" o depositar
             var movimientos = await _dbContext.Movimientos
-                .Include(m => m.TipoMovimiento)
-                .Where(m => m.IdUsuario == idUsuario && (m.TipoMovimiento.Nombre == "Retirar" || m.TipoMovimiento.Nombre == "Consignar" || m.TipoMovimiento.Nombre == "Depositar"))
-                .ToListAsync();
+               .Include(m => m.TipoMovimiento)
+               .Include(m => m.Usuario)
+               .Where(m => m.IdUsuario == idUsuario || (m.TipoMovimiento.Nombre == "Consignar" && m.IdUsuario != idUsuario))
+               .ToListAsync();
 
-            return View(movimientos);
+            var movimientosViewModel = movimientos.Select(m => new ConsultaMovimientoVM
+            {
+                Fecha = m.Fecha,
+                TipoMovimiento = m.TipoMovimiento.Nombre,
+                Cantidad = m.Cantidad,
+                NombreUsuario = m.IdUsuario == idUsuario ? "Yo" : m.Usuario.Nombre,
+                Saldo = m.Usuario?.Cuenta?.Saldo ?? 0
+            }).ToList();
+
+            return View(movimientosViewModel);
         }
+
 
 
 
