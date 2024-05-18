@@ -113,6 +113,14 @@ namespace Banco.Controllers
                 return View();
             }
 
+            // Verificar si la cuenta está bloqueada
+            if (usuario_encontrado.BloqueadoHasta.HasValue && usuario_encontrado.BloqueadoHasta.Value > DateTime.Now)
+            {
+                ViewData["Mensaje"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
+                return View();
+            }
+
+            // Verificar la contraseña
             if (usuario_encontrado.Clave != modelo.Clave)
             {
                 usuario_encontrado.IntentosFallidos++;
@@ -120,24 +128,21 @@ namespace Banco.Controllers
                 if (usuario_encontrado.IntentosFallidos >= MaxIntentosFallidos)
                 {
                     usuario_encontrado.BloqueadoHasta = DateTime.Now.AddHours(BloqueoHoras);
-                    if (usuario_encontrado.BloqueadoHasta.HasValue && usuario_encontrado.BloqueadoHasta.Value > DateTime.Now)
-                    {
-                        ViewData["Mensaje"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
-                        return View();
-                    }
-                    else
-                    {
-                        usuario_encontrado.IntentosFallidos = 0; // Resetear el contador de intentos fallidos después del bloqueo
-                    }
+                    await _dbContext.SaveChangesAsync();
+                    ViewData["Mensaje"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
+                    return View();
                 }
-                await _dbContext.SaveChangesAsync();
 
+                await _dbContext.SaveChangesAsync();
                 ViewData["Mensaje"] = $"Contraseña incorrecta. Intentos restantes: {MaxIntentosFallidos - usuario_encontrado.IntentosFallidos}";
                 return View();
             }
 
-            usuario_encontrado.IntentosFallidos = 0; // Resetear los intentos fallidos en caso de inicio de sesión exitoso
+            // Restablecer los intentos fallidos en caso de inicio de sesión exitoso
+            usuario_encontrado.IntentosFallidos = 0;
+            usuario_encontrado.BloqueadoHasta = null; // Resetear la fecha de bloqueo
             await _dbContext.SaveChangesAsync();
+
 
             // Verificar si el usuario no tiene una cuenta asociada
             if (usuario_encontrado.Cuenta == null)

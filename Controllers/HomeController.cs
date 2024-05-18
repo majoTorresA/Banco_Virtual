@@ -330,20 +330,55 @@ namespace Banco.Controllers
                 return View();
             }
 
-            var movimientos = await _dbContext.Movimientos
-               .Include(m => m.TipoMovimiento)
-               .Include(m => m.Usuario)
-               .Where(m => m.IdUsuario == idUsuario || (m.TipoMovimiento.Nombre == "Consignar" && m.IdUsuario != idUsuario))
-               .ToListAsync();
-
-            var movimientosViewModel = movimientos.Select(m => new ConsultaMovimientoVM
+            // Obtener el usuario autenticado y su cuenta
+            var usuario = await _dbContext.Usuarios.Include(u => u.Cuenta).FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+            if (usuario == null || usuario.Cuenta == null)
             {
-                Fecha = m.Fecha,
-                TipoMovimiento = m.TipoMovimiento.Nombre,
-                Cantidad = m.Cantidad,
-                NombreUsuario = m.IdUsuario == idUsuario ? "Yo" : m.Usuario.Nombre,
-                Saldo = m.Usuario?.Cuenta?.Saldo ?? 0
-            }).ToList();
+                ViewData["MensajeFallo"] = "Usuario o cuenta no encontrados";
+                return View();
+            }
+
+            // Obtener los movimientos del usuario que sean de tipo "Retirar", "Depositar" o "Consignar" donde el usuario es el destinatario
+            var movimientos = await _dbContext.Movimientos
+                .Include(m => m.TipoMovimiento)
+                .Include(m => m.Usuario)
+                .Where(m => m.IdUsuario == idUsuario || (m.TipoMovimiento.Nombre == "Consignar" && m.Usuario.Correo == usuario.Correo))
+                .OrderBy(m => m.Fecha)
+                .ToListAsync();
+
+            // Calcular el saldo después de cada movimiento
+            decimal saldoActual = usuario.Cuenta.Saldo; // El saldo inicial es 0
+            var movimientosViewModel = new List<ConsultaMovimientoVM>();
+
+            foreach (var movimiento in movimientos)
+            {
+                var esMovimientoPropio = movimiento.IdUsuario == idUsuario;
+                var tipoMovimiento = movimiento.TipoMovimiento.Nombre;
+
+                // Calcular el saldo restante después de este movimiento
+                if (tipoMovimiento == "Depositar" || (tipoMovimiento == "Consignar" && !esMovimientoPropio))
+                {
+                    saldoActual += movimiento.Cantidad; // Aumentar el saldo en el caso de depósito o consignación recibida
+                }
+                else if (tipoMovimiento == "Retirar" || (tipoMovimiento == "Consignar" && esMovimientoPropio))
+                {
+                    saldoActual -= movimiento.Cantidad; // Disminuir el saldo en el caso de retiro o consignación realizada
+                }
+
+                var movimientoVM = new ConsultaMovimientoVM
+                {
+                    Fecha = movimiento.Fecha,
+                    TipoMovimiento = tipoMovimiento,
+                    Cantidad = movimiento.Cantidad,
+                    NombreUsuario = esMovimientoPropio ? "Yo" + (tipoMovimiento == "Consignar" ? " (envía)" : "") : movimiento.Usuario.Nombre + (tipoMovimiento == "Consignar" ? " (recibe)" : ""),
+                    Saldo = saldoActual
+                };
+
+                movimientosViewModel.Add(movimientoVM);
+            }
+
+            // Invertir el orden para mostrar el saldo correcto después de cada movimiento
+            movimientosViewModel.Reverse();
 
             return View(movimientosViewModel);
         }
