@@ -12,8 +12,6 @@
             <th>Fecha</th>
             <th>Tipo de Movimiento</th>
             <th>Cantidad</th>
-            <th>Nombre del Usuario</th>
-            <th>Saldo Después del Movimiento</th>
         </tr>
     </thead>
     <tbody>
@@ -22,9 +20,10 @@
             <tr>
                 <td>@movimiento.Fecha</td>
                 <td>@movimiento.TipoMovimiento</td>
-                <td>@movimiento.Cantidad</td>
-                <td>@movimiento.NombreUsuario</td>
-                <td>@movimiento.Saldo</td>
+                <td>
+                    @movimiento.Cantidad
+                </td>
+                
             </tr>
         }
     </tbody>

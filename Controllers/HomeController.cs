@@ -32,11 +32,6 @@ namespace Banco.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
         [HttpGet]
         public IActionResult Retiro()
         {
@@ -319,6 +314,7 @@ namespace Banco.Controllers
             return View();
         }
 
+        //
         //Consultar Movimientos
         [HttpGet]
         public async Task<IActionResult> ConsultarMovimientos()
@@ -346,43 +342,28 @@ namespace Banco.Controllers
                 .OrderBy(m => m.Fecha)
                 .ToListAsync();
 
-            // Calcular el saldo después de cada movimiento
-            decimal saldoActual = usuario.Cuenta.Saldo; // El saldo inicial es 0
+           
             var movimientosViewModel = new List<ConsultaMovimientoVM>();
 
             foreach (var movimiento in movimientos)
             {
-                var esMovimientoPropio = movimiento.IdUsuario == idUsuario;
                 var tipoMovimiento = movimiento.TipoMovimiento.Nombre;
-
-                // Calcular el saldo restante después de este movimiento
-                if (tipoMovimiento == "Depositar" || (tipoMovimiento == "Consignar" && !esMovimientoPropio))
-                {
-                    saldoActual += movimiento.Cantidad; // Aumentar el saldo en el caso de depósito o consignación recibida
-                }
-                else if (tipoMovimiento == "Retirar" || (tipoMovimiento == "Consignar" && esMovimientoPropio))
-                {
-                    saldoActual -= movimiento.Cantidad; // Disminuir el saldo en el caso de retiro o consignación realizada
-                }
 
                 var movimientoVM = new ConsultaMovimientoVM
                 {
                     Fecha = movimiento.Fecha,
                     TipoMovimiento = tipoMovimiento,
                     Cantidad = movimiento.Cantidad,
-                    NombreUsuario = esMovimientoPropio ? "Yo" + (tipoMovimiento == "Consignar" ? " (envía)" : "") : movimiento.Usuario.Nombre + (tipoMovimiento == "Consignar" ? " (recibe)" : ""),
-                    Saldo = saldoActual
+                    
                 };
 
                 movimientosViewModel.Add(movimientoVM);
             }
 
-            // Invertir el orden para mostrar el saldo correcto después de cada movimiento
             movimientosViewModel.Reverse();
 
             return View(movimientosViewModel);
         }
-
 
 
 
