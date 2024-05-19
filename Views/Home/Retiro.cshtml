@@ -6,14 +6,14 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     </head>
 
-    <body class="bg-dark">
+    <body>
     <div class="row mt-5 justify-content-center">
         <div class="col-sm-4">
-
-            <div class="card-body">
+            <h2>Retira tu plata :)</h2>
+            <div class="card">
+                <div class="card-body">
 
                 <form asp-controller="Home" asp-action="Retiro" method="post">
-                    <h2>Retiro</h2>
                     <div class="form-group">
                         <label for="clave">Clave</label>
                         <input type="password" class="form-control" id="clave" name="clave" required />
@@ -24,7 +24,7 @@
                     </div>
 
 
-                    <div class="d-grid gap-2 mb-3">
+                    <div class="d-grid gap-5 mb-3">
                         <button class="btn btn-primary" type="submit">Retirar</button>
                     </div>
 
@@ -45,6 +45,9 @@
                         </div>
                     }
                 </form>
+
+                </div>
+
             </div>
 
         </div>
