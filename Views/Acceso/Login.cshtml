@@ -27,10 +27,22 @@
                             <button class="btn btn-primary" type="submit">Iniciar Sesión</button>
                         </div>
 
-                        @if (ViewData["Mensaje"] != null)
+                        @if (ViewData["Error"] != null)
                         {
                             <div class="alert alert-danger" role="alert">
-                                @ViewData["Mensaje"]
+                                @ViewData["Error"]
+                            </div>
+                        }
+                         @if (ViewData["Advertencia"] != null)
+                        {
+                            <div class="alert alert-warning" role="alert">
+                                @ViewData["Advertencia"]
+                            </div>
+                        }
+                        @if (ViewData["Info"] != null)
+                        {
+                            <div class="alert alert-info" role="alert">
+                                @ViewData["Info"]
                             </div>
                         }
                        <div class="text-center">

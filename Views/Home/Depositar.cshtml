@@ -8,7 +8,7 @@
 <body>
     <div class="row mt-5 justify-content-center">
         <div class="col-sm-4">
-             <h2>Deposita tu plata</h2>
+             <h2>Deposita tu plata :)</h2>
             <div class="card">
 
             <div class="card-body">
@@ -29,19 +29,19 @@
                     </div>
 
 
-                    @if (ViewData["MensajeFallo"] != null)
+                        @if (ViewData["Error"] != null)
                     {
                         <div class="alert alert-danger" role="alert">
-                            @ViewData["MensajeFallo"]
+                                @ViewData["Error"]
                         </div>
                     }
-                    @if (ViewData["MensajeExito"] != null)
+                    @if (ViewData["Exito"] != null)
                     {
                         <div class="alert alert-success" role="alert">
-                            @ViewData["MensajeExito"]
+                            @ViewData["Exito"]
                         </div>
                         <div class="alert alert-success">
-                            <p>Su saldo actual es: @ViewData["Saldo"]</p>
+                            <p>Su saldo actual es: @ViewData["VerSaldo"]</p>
                         </div>
                     }
 

@@ -23,14 +23,12 @@ namespace Banco.Controllers
 
         public async Task CrearCuentaParaUsuario(Usuario nuevoUsuario)
         {
-            // Crear una nueva cuenta para el usuario
             var nuevaCuenta = new Cuenta
             {
-                IdUsuario = nuevoUsuario.IdUsuario, // Asignar el ID del nuevo usuario a la cuenta
-                Saldo = 0 // Establecer el saldo inicial en 0
+                IdUsuario = nuevoUsuario.IdUsuario, 
+                Saldo = 0 
             };
 
-            // Agregar la nueva cuenta a la base de datos
             _dbContext.Cuentas.Add(nuevaCuenta);
             await _dbContext.SaveChangesAsync();
         }
@@ -47,13 +45,13 @@ namespace Banco.Controllers
             // Verificar si el correo ya está registrado
             if (await _dbContext.Usuarios.AnyAsync(u => u.Correo == modelo.Correo))
             {
-                ViewData["Mensaje"] = "Ya existe ese correo. Ingrese otro e intente nuevamente";
+                ViewData["Info"] = "Ya existe ese correo. Ingrese otro e intente nuevamente";
                 return View();
             }
 
             if (modelo.Clave != modelo.ConfirmarClave)
             {
-                ViewData["Mensaje"] = "Las claves no coinciden :(";
+                ViewData["Error"] = "Las claves no coinciden :(";
                 return View();
             }
 
@@ -68,26 +66,24 @@ namespace Banco.Controllers
             };
 
             _dbContext.Usuarios.Add(usuario);
-            await _dbContext.SaveChangesAsync(); // Guardar los cambios en la base de datos
+            await _dbContext.SaveChangesAsync(); 
 
             // Verificar si el usuario no tiene una cuenta asociada
             if (!_dbContext.Cuentas.Any(c => c.IdUsuario == usuario.IdUsuario))
             {
-                // Crear una cuenta para el nuevo usuario
                 await CrearCuentaParaUsuario(usuario);
             }
 
 
             if (usuario.IdUsuario != 0)
             {
-                // Crear una cuenta para el nuevo usuario
                 await CrearCuentaParaUsuario(usuario);
 
                 return RedirectToAction("Login", "Acceso");
             }
             else
             {
-                ViewData["Mensaje"] = "No se pudo crear el usuario. Terrible";
+                ViewData["Error"] = "Error: No se pudo crear el usuario. ";
             }
 
             return View();
@@ -109,14 +105,14 @@ namespace Banco.Controllers
 
             if (usuario_encontrado == null)
             {
-                ViewData["Mensaje"] = "No se encontraron coincidencias. Asegúrese que lo ingresado sea correcto";
+                ViewData["Info"] = "Correo no encontrado. Reviselo e intente nuevamente";
                 return View();
             }
 
             // Verificar si la cuenta está bloqueada
             if (usuario_encontrado.BloqueadoHasta.HasValue && usuario_encontrado.BloqueadoHasta.Value > DateTime.Now)
             {
-                ViewData["Mensaje"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
+                ViewData["Error"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
                 return View();
             }
 
@@ -129,31 +125,29 @@ namespace Banco.Controllers
                 {
                     usuario_encontrado.BloqueadoHasta = DateTime.Now.AddHours(BloqueoHoras);
                     await _dbContext.SaveChangesAsync();
-                    ViewData["Mensaje"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
+                    ViewData["Error"] = "Cuenta bloqueada por 24 horas, comunícate con tu banco";
                     return View();
                 }
 
                 await _dbContext.SaveChangesAsync();
-                ViewData["Mensaje"] = $"Contraseña incorrecta. Intentos restantes: {MaxIntentosFallidos - usuario_encontrado.IntentosFallidos}";
+                ViewData["Advertencia"] = $"Contraseña incorrecta. Te quedan {MaxIntentosFallidos - usuario_encontrado.IntentosFallidos} intentos";
                 return View();
             }
 
-            // Restablecer los intentos fallidos en caso de inicio de sesión exitoso
+       
             usuario_encontrado.IntentosFallidos = 0;
-            usuario_encontrado.BloqueadoHasta = null; // Resetear la fecha de bloqueo
+            usuario_encontrado.BloqueadoHasta = null; 
             await _dbContext.SaveChangesAsync();
 
 
-            // Verificar si el usuario no tiene una cuenta asociada
             if (usuario_encontrado.Cuenta == null)
             {
-                // Crear una cuenta para el usuario
                 await CrearCuentaParaUsuario(usuario_encontrado);
             }
 
             List<Claim> claims = new List<Claim>()
     {
-        new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.IdUsuario.ToString()), // Store IdUsuario in NameIdentifier claim
+        new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.IdUsuario.ToString()), 
         new Claim(ClaimTypes.Name, usuario_encontrado.Nombre)
     };
 

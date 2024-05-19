@@ -1,18 +1,18 @@
 ﻿@{
-    ViewData["Title"] = "Consultar Saldo";
+    ViewData["Title"] = "Tu Saldo";
 }
 
 <h2>Tu Saldo :)</h2>
 
-@if (ViewData["MensajeFallo"] != null)
+@if (ViewData["Error"] != null)
 {
     <div class="alert alert-danger">
-        @ViewData["MensajeFallo"]
+        @ViewData["Error"]
     </div>
 }
 else
 {
     <div class="alert alert-success">
-        <p>Tu saldo actual es: @ViewData["Saldo"]</p>
+        <p>Tu saldo actual es: @ViewData["VerSaldo"]</p>
     </div>
 }

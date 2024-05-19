@@ -1,7 +1,7 @@
 ﻿@model Banco.ViewModels.ConsignaViewModel
 
 @{
-    ViewData["Title"] = "Consignar Dinero";
+    ViewData["Title"] = "Consignar Plata";
 }
 
 
@@ -27,27 +27,27 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="cantidad">Cantidad</label>
-                                    <input type="number" class="form-control" id="cantidad" name="cantidad" required min="0.01" step="0.01">
+                                    <input type="number" class="form-control" id="cantidad" name="cantidad" required min="1" step="0.01">
                                 </div>
 
                                 <div class="d-grid gap-4 mb-3">
                                     <button class="btn btn-primary" type="submit">Consignar</button>
                                 </div>
                   
-                                @if (ViewData["MensajeFallo"] != null)
+                                @if (ViewData["Error"] != null)
                                 {
                                     <div class="alert alert-danger">
-                                        @ViewData["MensajeFallo"]
+                                        @ViewData["Error"]
                                     </div>
                                 }
 
-                                @if (ViewData["MensajeExito"] != null)
+                                @if (ViewData["Exito"] != null)
                                 {
                                     <div class="alert alert-success" role="alert">
-                                        @ViewData["MensajeExito"]
+                                        @ViewData["Exito"]
                                     </div>
                                     <div class="alert alert-success">
-                                        <p>Su saldo actual es: @ViewData["Saldo"]</p>
+                                        <p>Su saldo actual es: @ViewData["VerSaldo"]</p>
                                     </div>
                                 }
 
