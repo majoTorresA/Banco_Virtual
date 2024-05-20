@@ -1,16 +1,28 @@
 ﻿@using System.Security.Claims;
 
-@{
-    ViewData["Title"] = "INICIO";
-}
 
-<div class="text-center">
-    @if(User.Identity.IsAuthenticated)
-    {
-    <h1 class="display-4">Bienvenido/a
-        @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()
-    </h1>
+<html>
+
+    <head>
+    <title>INICIO</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    </head>
+
+    <body>
+
+        <div class="text-center">
+            @if(User.Identity.IsAuthenticated)
+            {
+            <h1 class="display-4 text-white">
+                Bienvenido/a
+                <strong> @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()</strong>
+            </h1>
         
-    }
-    <p>Realiza tus movimientos bancarios :)</p>
-</div>
+            }
+            <p class="text-white">Realiza tus movimientos bancarios :)</p>
+        </div>
+            <script src="~/lib/jquery/dist/jquery.min.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

@@ -35,13 +35,10 @@ namespace Banco.Data
                     .HasMaxLength(50);
                 tb.Property(col => col.Identificacion)
                     .HasMaxLength(50);
-
-                // Nueva propiedad IntentosFallidos
                 tb.Property(col => col.IntentosFallidos)
-                    .HasDefaultValue(0); // Valor predeterminado cero
-                // Nueva propiedad BloqueadoHasta
+                    .HasDefaultValue(0); 
                 tb.Property(col => col.BloqueadoHasta)
-                    .IsRequired(false); // Hacer que esta propiedad sea nullable en la base de datos
+                    .IsRequired(false); 
             });
 
 

@@ -1,12 +1,17 @@
 ﻿@model IEnumerable<Banco.ViewModels.ConsultaMovimientoVM>
 
-@{
-    ViewData["Title"] = "Consultar Movimientos";
-}
 
-<h2>Tus Movimientos</h2>
+<html>
+<head>
+    <title>Consultar Movimientos</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
 
-<table class="table table-primary table-striped">
+<body>
+
+    <h2 class="text-center">Tus Movimientos :0</h2>
+    <table class="table table-primary table-striped p-3">
+        <link href="~/css/site.css" rel="stylesheet" />
     <thead>
         <tr>
             <th>Fecha</th>
@@ -28,3 +33,9 @@
         }
     </tbody>
 </table>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+
+</html>

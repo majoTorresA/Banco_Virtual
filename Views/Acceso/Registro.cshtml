@@ -6,26 +6,35 @@
     <head>
         <title>REGISTRO</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/site.css" rel="stylesheet" />
     </head>
     <body>
+    <div class="d-grid gap-2 mb-3 text-center align-items-center p-4">
+        <h2 class="text-white">Banco Virtual ;)</h2>
+    </div>
         <div class="row mt-5 justify-content-center">
             <div class="col-sm-4">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header text-center">
                         Registrate
                     </div>
 
                     <div class="card-body">
 
                         <form asp-controller="Acceso" asp-action="Registro" method="post">
+                        <label>Nombre</label>
                         <input class="form-control mb-3" type="text" placeholder="Nombre completo" required asp-for="Nombre" />
+                        <label>Correo</label>
                         <input class="form-control mb-3" type="text" placeholder="ejemplo@gmil.com" required asp-for="Correo" />
+                        <label>Identificación</label>
                         <input class="form-control mb-3" type="text" placeholder="Identificacion" required asp-for="Identificacion" />
+                        <label>Clave</label>
                         <input class="form-control mb-3" type="password" placeholder="Clave" required asp-for="Clave" />
+                        <label>Repetir Clave</label>
                         <input class="form-control mb-3" type="password" placeholder="Repetir Clave" required asp-for="ConfirmarClave" />
 
                         <div class="d-grid gap-2 mb-3">
-                            <button class="btn btn-primary" type="submit">Regístrate</button>
+                            <button class="btn text-white" type="submit">Regístrate</button>
                         </div>
 
                         @if (ViewData["Error"] != null)

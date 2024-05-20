@@ -8,23 +8,29 @@
 <head>
     <title>INICIA SESION</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/site.css" rel="stylesheet" />
 </head>
 <body>
+    <div class="d-grid gap-2 mb-3 text-center align-items-center p-4">
+        <h2 class="text-white">Banco Virtual ;)</h2>
+    </div>
     <div class="row mt-5 justify-content-center align-items-center ">
         <div class="col-sm-4">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header text-center">
                     <strong>Inicia Sesion</strong>
                 </div>
 
                 <div class="card-body">
 
                     <form asp-controller="Acceso" asp-action="Login" method="post">
+                        <label>Correo</label>
                         <input class="form-control mb-3" type="text" placeholder="ejemplo@gmail.com" required asp-for="Correo" />
+                        <label>Clave</label>
                         <input class="form-control mb-3" type="password" placeholder="Clave" required asp-for="Clave" />
 
                         <div class="d-grid gap-2 mb-3">
-                            <button class="btn btn-primary" type="submit">Iniciar Sesión</button>
+                            <button class="btn text-white" type="submit">Iniciar Sesión</button>
                         </div>
 
                         @if (ViewData["Error"] != null)

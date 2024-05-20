@@ -18,5 +18,19 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
+}
+
+
+h2 {
+    color: #f3f3f3;
+}
+
+nav {
+    background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
+}
+
+button {
+    background-image: linear-gradient(-20deg, #fc6076 0%, #ff9a44 100%);
 }

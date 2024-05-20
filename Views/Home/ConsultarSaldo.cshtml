@@ -1,8 +1,13 @@
-﻿@{
-    ViewData["Title"] = "Tu Saldo";
-}
+﻿
+<html>
+    <head>
+    <title>Tu Saldo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    </head>
+    <body>
 
-<h2>Tu Saldo :)</h2>
+    <h2 class="text-center">Tu Saldo :)</h2>
 
 @if (ViewData["Error"] != null)
 {
@@ -12,7 +17,12 @@
 }
 else
 {
-    <div class="alert alert-success">
+    <div class="alert alert-info">
         <p>Tu saldo actual es: @ViewData["VerSaldo"]</p>
     </div>
 }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
